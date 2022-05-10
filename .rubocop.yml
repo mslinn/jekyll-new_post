@@ -1,0 +1,34 @@
+AllCops:
+  Exclude:
+      - vendor/**/*
+      - Gemfile*
+  NewCops: enable
+  TargetRubyVersion: 2.6
+
+Layout/LineLength:
+  Max: 150
+
+Metrics/AbcSize:
+  Max: 20
+  Exclude:
+    - "test/**/*"
+
+Metrics/BlockLength:
+  Exclude:
+    - "*.gemspec"
+    - "Rakefile"
+
+Metrics/ClassLength:
+  Max: 50
+  Exclude:
+    - "test/**/*"
+
+Metrics/MethodLength:
+  Exclude:
+    - "test/**/*"
+
+Style/CommandLiteral:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes

@@ -9,7 +9,7 @@
       "cwd": "${workspaceFolder}/demo",
       "type": "Ruby",
       "name": "Debug new_post sub-command",
-      "program": "~/.rbenv/versions/2.7.2/lib/ruby/gems/2.7.0/gems/jekyll-4.2.2/exe/jekyll",
+      "program": "exe/jekyll",
       "request": "launch",
     },
     {

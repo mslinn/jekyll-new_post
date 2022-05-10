@@ -3,22 +3,20 @@
 source 'https://rubygems.org'
 
 gem 'jekyll', '~> 4.2.2'
+gem 'ptools'
 gem 'webrick'
 
 group :jekyll_plugins do
-  gem 'classifier-reborn'
-  gem 'html-proofer'
   gem 'jekyll-assets'
   gem 'jekyll-environment-variables'
   gem 'jekyll-new_post', path: '../'
-  gem 'jekyll-sort'
-  gem 'jekyll-tagging'
   gem 'kramdown'
 end
 
 # Debugging:
-gem 'debase', require: false
-gem 'rake', '~> 13.0', require: false
-gem 'rspec', require: false
-gem 'rubocop', '= 1.18.0', require: false
+gem 'debase', '0.2.5.beta2', require: false
+gem 'debase-ruby_core_source', '~> 0.10.15', require: false
 gem 'ruby-debug-ide', require: false
+# gem 'rake', '~> 13.0', require: false
+# gem 'rspec', require: false
+# gem 'rubocop', '= 1.18.0', require: false

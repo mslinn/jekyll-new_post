@@ -2,10 +2,12 @@
 
 # frozen_string_literal: true
 
+require 'colorator'
 require 'date'
 require 'fileutils'
+require 'jekyll'
 require 'pathname'
-require "ptools" # gem install ptools
+require 'ptools' # gem install ptools
 require 'tty-prompt'
 require 'yaml'
 
@@ -20,17 +22,11 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   class << self
     # @param prog [Mercenary::Program]
-    def init_with_program(prog) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def init_with_program(prog)
       prog.command(:new_post) do |_c|
         project_root = Pathname.new(__dir__).parent.to_s
         puts "Executing from #{project_root}".cyan
         new_post = NewPost.new
-
-        site_root = Pathname.new "#{project_root}/_site"
-        abort "Error: The _site/ directory does not exist." unless site_root.exist?
-        Dir.chdir site_root
-
-        check_config_env_vars
         new_post.make_post
       rescue SystemExit, Interrupt
         puts "\nTerminated".cyan
@@ -40,21 +36,15 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     end
   end
 
-  private
-
-  def choose_order(collection)
-
-  end
-
   # Make a new post in one of the collections
   def make_post # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-    collections_dir = @config.collections_dir || '.'
-    collections = @config.collections
+    collections_dir = @config['collections_dir'] || '.'
+    collections = @config['collections'] || [{label: 'posts'}]
     labels = collections.map(&:label)
-    collection_name = @prompt.multi_select("Which collection should the new post be part of? ", labels)
+    collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels)
     if collection_name == 'posts'
       prefix = "#{collections_dir}/_drafts"
-      @highest = @prompt.ask? "Publication date: ", Date.today.to_s
+      @highest = @prompt.ask? 'Publication date: ', Date.today.to_s
     else
       prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
@@ -62,24 +52,30 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
       @highest = choose_order(collection)
     end
     puts "This new post will be placed in the '#{prefix}' directory"
-    @title = reprompt("Title", 30, 60)
+    @title = reprompt('Title', 30, 60)
     @plc = read_title
     make_output_file
 
-    @desc = reprompt("Description", 60, 150, title)
-    @css = @prompt.ask?("Post CSS (comma delimited): ")
-    @categories = @prompt.ask?("Post Categories (comma delimited): ")
-    @tags = @prompt.ask?("Post Tags (comma delimited): ")
-    # @keyw = @prompt.ask?("Post Keywords (comma delimited): ")
-    @img = @prompt.ask?("Banner image (.png & .webp): ")
-    @clipboard = @prompt.yes?("Enable code example clipboard icon?")
+    @desc = reprompt('Description', 60, 150, title)
+    @css = @prompt.ask?('Post CSS (comma delimited): ')
+    @categories = @prompt.ask?('Post Categories (comma delimited): ')
+    @tags = @prompt.ask?('Post Tags (comma delimited): ')
+    # @keyw = @prompt.ask?('Post Keywords (comma delimited): ')
+    @img = @prompt.ask?('Banner image (.png & .webp): ')
+    @clipboard = @prompt.yes?('Enable code example clipboard icon?')
     output_contents
 
     # edit
 
-    return unless @prompt.yes?("Use mem to append code examples to this post?")
+    return unless @prompt.yes?('Use mem to append code examples to this post?')
 
     run "cmd.exe /c wt new-tab bash -ilc #{msp}/_bin/mem -a #{filename}"
+  end
+
+  private
+
+  def choose_order(collection)
+
   end
 
   def check_length(min, max, string) # rubocop:disable Metrics/MethodLength
@@ -101,7 +97,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   def edit
     if File.which 'code'
-      run "code ."
+      run 'code .'
     elsif File.which 'notepad'
       run "notepad #{filename}"  # Invokes mslinn's notepad++ script
     elsif File.which 'gedit'
@@ -126,21 +122,21 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   # @param value - (Optional) initial value
   def reprompt(name, min, max, value) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     unless name
-      puts "Error: no front matter variable provided"
+      puts 'Error: no front matter variable provided'
       exit 1
     end
     unless min
-      puts "Error: no minimum length provided"
+      puts 'Error: no minimum length provided'
       exit 1
     end
     unless max
-      puts "Error: no maximum length provided"
+      puts 'Error: no maximum length provided'
       exit 1
     end
 
-    spaces = "".rjust(min, " ")
+    spaces = ''.rjust(min, ' ')
     count = ((max * 10) - (min * 10) + 5) / 10
-    numbers = "0123456789" * count
+    numbers = '0123456789' * count
     chars = max - min
     loop do
       puts "Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n"
@@ -150,18 +146,10 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     puts "\n#{value}"
   end
 
-  # Set cwd to project root
-  def check_config_env_vars
-    return if File.exist? "_bin/loadConfigEnvVars"
-
-    puts "Error: _bin/loadConfigEnvVars was not found."
-    exit 1
-  end
-
   def output_contents # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     if @clipboard
-      javascript_end = "/assets/js/clipboard.min.js"
-      javascript_inline = "new ClipboardJS('.copyBtn');"
+      javascript_end = '/assets/js/clipboard.min.js'
+      javascript_inline = 'new ClipboardJS('.copyBtn');'
     end
 
     contents <<~END_CONTENTS
@@ -186,7 +174,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     end
 
     contents += <<~END_CONTENTS
-      #{emit_array("#selectable", "false")}
+      #{emit_array('#selectable', false)}
       #{emit_array('tags',        tags)}
       #{emit_scalar('title',      title)}
       ---
@@ -200,7 +188,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   def read_title
     ptitle = title.gsub(' ', '=')
     plc = ptitle.downcase.gsub('[/:]', '')
-    @prompt.ask("Filename slug (without date/seq# or filetype): ", default: plc)
+    @prompt.ask('Filename slug (without date/seq# or filetype): ', default: plc)
   end
 
   def make_output_file
@@ -209,5 +197,26 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     File.mkdirs prefix
     FileUtils.touch filename # Create the new empty post
     puts filename
+  end
+end
+
+# Invoke this code this way:
+# $ cd demo
+# $ ruby ../lib/jekyll/new_post.rb
+if __FILE__ == $PROGRAM_NAME
+  begin
+    project_root = Pathname.new(__dir__).parent.to_s
+    puts "Executing from #{project_root}".cyan
+    new_post = NewPost.new
+
+    site_root = Pathname.new "#{project_root}/_site"
+    abort 'Error: The _site/ directory does not exist.' unless site_root.exist?
+    Dir.chdir site_root
+
+    new_post.reprompt('Test', 10, 20, 'Blah')
+  rescue SystemExit, Interrupt
+    puts "\nTerminated".cyan
+  rescue StandardError => e
+    puts e.message.red
   end
 end

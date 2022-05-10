@@ -1,4 +1,5 @@
 author: Mike Slinn
+# collections_dir: collections
 compress_html:
   blanklines: false
   clippings: all
