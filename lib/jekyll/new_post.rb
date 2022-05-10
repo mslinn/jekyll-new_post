@@ -39,8 +39,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   # Make a new post in one of the collections
   def make_post # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     collections_dir = @config['collections_dir'] || '.'
-    collections = @config['collections'] || [{label: 'posts'}]
-    labels = collections.map(&:label)
+    collections = @config['collections'] || [{ 'label' => 'posts' }]
+    labels = collections.map { |c| c['label'] }
     collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels)
     if collection_name == 'posts'
       prefix = "#{collections_dir}/_drafts"
@@ -48,7 +48,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     else
       prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
-      collection = collections.find { |x| x.label == collection_name }
+      collection = collections.find { |x| x['label'] == collection_name }
       @highest = choose_order(collection)
     end
     puts "This new post will be placed in the '#{prefix}' directory"
