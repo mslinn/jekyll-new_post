@@ -48,7 +48,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     end
     if collection_name == 'posts'
       prefix = "#{collections_dir}/_drafts"
-      @highest = @prompt.ask('Publication date', default: Date.today.to_s)
+      @highest = @prompt.ask('Publication date', default: Date.today.to_s, date: true)
     else
       prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
@@ -82,20 +82,14 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   end
 
-  def check_length(min, max, string) # rubocop:disable Metrics/MethodLength
-    # $1 - minimum length
-    # $2 - maximum length
-    # $3 - string to test
+  def check_length(min, max, string)
     length = string.length
     if length < min
-      puts "#{min - length} characters too short, please edit"
-      1
+      "#{min - length} characters too short, please edit"
     elsif length > max
-      puts "#{length - max} characters too long, please edit"
-      2
+      "#{length - max} characters too long, please edit"
     else
-      puts "#{length} characters, excellent!"
-      0
+      "#{length} characters, excellent!"
     end
   end
 
@@ -125,27 +119,17 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   # @param max - maximum length of user-provided value
   # @param value - (Optional) initial value
   def reprompt(name, min, max, value) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-    unless name
-      puts 'Error: no front matter variable provided'
-      exit 1
-    end
-    unless min
-      puts 'Error: no minimum length provided'
-      exit 1
-    end
-    unless max
-      puts 'Error: no maximum length provided'
-      exit 1
-    end
-
-    spaces = ''.rjust(min, ' ')
-    count = ((max * 10) - (min * 10) + 5) / 10
+    spaces = ''.rjust(min, '_')
+    count = (((max * 10) - (min * 10) + 5) / 100) + 1
     numbers = '0123456789' * count
     chars = max - min
     loop do
-      puts "Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n"
-      value = gets.chomp
-      break if checkLength(min, max, value)
+      msg = "Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n"
+      value = @prompt.ask(msg, value: value) do |q|
+        q.required true
+        # q.messages[:valid?] = check_length(min, max, self)
+        q.validate ->(v) { return v.length >= min && v.length <= max }
+      end
     end
     puts "\n#{value}"
   end
