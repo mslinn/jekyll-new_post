@@ -37,14 +37,18 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   end
 
   # Make a new post in one of the collections
-  def make_post # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def make_post # rubocop:disable Metrics/PerceivedComplexity, Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
     collections_dir = @config['collections_dir'] || '.'
     collections = @config['collections'] || [{ 'label' => 'posts' }]
-    labels = collections.map { |c| c['label'] }
-    collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels)
+    if collections.length < 2
+      collection_name = 'posts'
+    else
+      labels = collections.map { |c| c['label'] }
+      collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels)
+    end
     if collection_name == 'posts'
       prefix = "#{collections_dir}/_drafts"
-      @highest = @prompt.ask? 'Publication date: ', Date.today.to_s
+      @highest = @prompt.ask('Publication date', default: Date.today.to_s)
     else
       prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
@@ -52,16 +56,16 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
       @highest = choose_order(collection)
     end
     puts "This new post will be placed in the '#{prefix}' directory"
-    @title = reprompt('Title', 30, 60)
+    @title = reprompt('Title', 30, 60, '')
     @plc = read_title
     make_output_file
 
     @desc = reprompt('Description', 60, 150, title)
-    @css = @prompt.ask?('Post CSS (comma delimited): ')
-    @categories = @prompt.ask?('Post Categories (comma delimited): ')
-    @tags = @prompt.ask?('Post Tags (comma delimited): ')
-    # @keyw = @prompt.ask?('Post Keywords (comma delimited): ')
-    @img = @prompt.ask?('Banner image (.png & .webp): ')
+    @css = @prompt.ask('Post CSS (comma delimited): ')
+    @categories = @prompt.ask('Post Categories (comma delimited): ')
+    @tags = @prompt.ask('Post Tags (comma delimited): ')
+    # @keyw = @prompt.ask('Post Keywords (comma delimited): ')
+    @img = @prompt.ask('Banner image (.png & .webp): ')
     @clipboard = @prompt.yes?('Enable code example clipboard icon?')
     output_contents
 
