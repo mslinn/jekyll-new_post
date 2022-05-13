@@ -37,39 +37,12 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   end
 
   # Make a new post in one of the collections
-  def make_post # rubocop:disable Metrics/PerceivedComplexity, Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
-    collections_dir = @config['collections_dir'] || '.'
-    collections = @config['collections'] || [{ 'label' => 'posts' }]
-    if collections.length < 2
-      collection_name = 'posts'
-    else
-      labels = collections.map { |c| c['label'] }
-      collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels)
-    end
-    if collection_name == 'posts'
-      @prefix = "#{collections_dir}/_drafts"
-      @highest = @prompt.ask('Publication date', default: Date.today.to_s, date: true)
-    else
-      @prefix = "#{collections_dir}/#{collection_name}"
-      @categories = []
-      collection = collections.find { |x| x['label'] == collection_name }
-      @highest = choose_order(collection)
-    end
-    puts "This new post will be placed in the '#{@prefix}' directory"
-    @title = reprompt('Title', 30, 60, '')
-    @plc = read_title
+  def make_post
+    prepare_output_file
     make_output_file
 
-    @desc = reprompt('Description', 60, 150, title)
-    @css = @prompt.ask('Post CSS (comma delimited): ')
-    @categories = @prompt.ask('Post Categories (comma delimited): ')
-    @tags = @prompt.ask('Post Tags (comma delimited): ')
-    # @keyw = @prompt.ask('Post Keywords (comma delimited): ')
-    @img = @prompt.ask('Banner image (.png & .webp): ')
-    @clipboard = @prompt.yes?('Enable code example clipboard icon?')
+    prepare_output_contents
     output_contents
-
-    # edit
 
     return unless @prompt.yes?('Use mem to append code examples to this post?')
 
@@ -114,6 +87,39 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     "#{name}: #{value}\n"
   end
 
+  def prepare_output_contents
+    @desc = reprompt('Description', 60, 150, title)
+    @css = @prompt.ask('Post CSS (comma delimited): ')
+    @categories = @prompt.ask('Post Categories (comma delimited): ')
+    @tags = @prompt.ask('Post Tags (comma delimited): ')
+    # @keyw = @prompt.ask('Post Keywords (comma delimited): ')
+    @img = @prompt.ask('Banner image (.png & .webp): ')
+    @clipboard = @prompt.yes?('Enable code example clipboard icon?')
+  end
+
+  def prepare_output_file # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity
+    collections_dir = @config['collections_dir'] || '.'
+    collections = @config['collections'] || [{ 'label' => 'posts' }]
+    if collections.length < 2
+      collection_name = 'posts'
+    else
+      labels = collections.map { |c| c['label'] }
+      collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels)
+    end
+    if collection_name == 'posts'
+      @prefix = "#{collections_dir}/_drafts"
+      @highest = @prompt.ask('Publication date', default: Date.today.to_s, date: true)
+    else
+      @prefix = "#{collections_dir}/#{collection_name}"
+      @categories = []
+      collection = collections.find { |x| x['label'] == collection_name }
+      @highest = choose_order(collection)
+    end
+    puts "This new post will be placed in the '#{@prefix}' directory"
+    @title = reprompt('Title', 30, 60, '')
+    @plc = read_title
+  end
+
   # @param name - name of front matter variable
   # @param min - minimum length of user-provided value
   # @param max - maximum length of user-provided value
@@ -129,7 +135,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
       when proc { |n| n < min }
         "Only #{value.length} characters were provided, but at least #{min} are required."
       when proc { |n| n > max }
-        "#{value.length} characters were provided, maximum allowable is #{max}."
+        "#{value.length} characters were provided, but the maximum allowable is #{max}."
       else
         return value
       end
@@ -170,7 +176,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   def output_contents # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     if @clipboard
       javascript_end = '/assets/js/clipboard.min.js'
-      javascript_inline = 'new ClipboardJS('.copyBtn');'
+      javascript_inline = "new ClipboardJS('.copyBtn');"
     end
 
     contents <<~END_CONTENTS
@@ -214,7 +220,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   def make_output_file
     # Location to create the new file as year-month-day-title.md
-    filename = "#{@prefix}/#{pdate}-#{plc}.html"
+    filename = "#{@prefix}/#{@pdate}-#{@plc}.html"
     File.mkdirs @prefix
     FileUtils.touch filename # Create the new empty post
     puts filename
