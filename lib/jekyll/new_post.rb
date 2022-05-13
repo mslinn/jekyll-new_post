@@ -47,15 +47,15 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
       collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels)
     end
     if collection_name == 'posts'
-      prefix = "#{collections_dir}/_drafts"
+      @prefix = "#{collections_dir}/_drafts"
       @highest = @prompt.ask('Publication date', default: Date.today.to_s, date: true)
     else
-      prefix = "#{collections_dir}/#{collection_name}"
+      @prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
       collection = collections.find { |x| x['label'] == collection_name }
       @highest = choose_order(collection)
     end
-    puts "This new post will be placed in the '#{prefix}' directory"
+    puts "This new post will be placed in the '#{@prefix}' directory"
     @title = reprompt('Title', 30, 60, '')
     @plc = read_title
     make_output_file
@@ -118,20 +118,53 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   # @param min - minimum length of user-provided value
   # @param max - maximum length of user-provided value
   # @param value - (Optional) initial value
-  def reprompt(name, min, max, value) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def reprompt(name, min, max, value) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     spaces = ''.rjust(min, '_')
     count = (((max * 10) - (min * 10) + 5) / 100) + 1
     numbers = '0123456789' * count
     chars = max - min
     loop do
-      msg = "Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n"
-      value = @prompt.ask(msg, value: value) do |q|
-        q.required true
-        # q.messages[:valid?] = check_length(min, max, self)
-        q.validate ->(v) { return v.length >= min && v.length <= max }
+      value = @prompt.ask("Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n", default: value)
+      case value.length
+      when proc { |n| n < min }
+        "Only #{value.length} characters were provided, but at least #{min} are required."
+      when proc { |n| n > max }
+        "#{value.length} characters were provided, maximum allowable is #{max}."
+      else
+        return value
       end
     end
+  end
+
+  # See https://github.com/piotrmurach/tty-prompt/issues/184
+  # @param name - name of front matter variable
+  # @param min - minimum length of user-provided value
+  # @param max - maximum length of user-provided value
+  # @param value - (Optional) initial value
+  def reprompt2(name, min, max, value) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    spaces = ''.rjust(min, '_')
+    count = (((max * 10) - (min * 10) + 5) / 100) + 1
+    numbers = '0123456789' * count
+    chars = max - min
+    msg = "Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n"
+    error_msg = lambda do |val|
+      puts val.red
+      case val.length
+      when proc { |n| n < min }
+        "Only #{val.length} characters provided, need at least #{min}"
+      when proc { |n| n > max }
+        "#{val.length} characters provided, maximum allowable is #{max}"
+      else
+        ''
+      end
+    end
+    value = @prompt.ask(msg, value: value) do |q|
+      q.required true
+      q.validate(/\A.{#{min},#{max}}\Z/, error_msg.call('%{value}'))
+      # q.validate(/\A.{#{min},#{max}}\Z/)
+    end
     puts "\n#{value}"
+    value
   end
 
   def output_contents # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
@@ -174,15 +207,15 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   # Convert title to lowercase, remove slashes and colons, convert spaces to hyphens
   def read_title
-    ptitle = title.gsub(' ', '=')
+    ptitle = @title.strip.gsub(' ', '-')
     plc = ptitle.downcase.gsub('[/:]', '')
     @prompt.ask('Filename slug (without date/seq# or filetype): ', default: plc)
   end
 
   def make_output_file
     # Location to create the new file as year-month-day-title.md
-    filename = "#{prefix}/#{pdate}-#{plc}.html"
-    File.mkdirs prefix
+    filename = "#{@prefix}/#{pdate}-#{plc}.html"
+    File.mkdirs @prefix
     FileUtils.touch filename # Create the new empty post
     puts filename
   end
