@@ -214,8 +214,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   # Convert title to lowercase, remove slashes and colons, convert spaces to hyphens
   def read_title
     ptitle = @title.strip.gsub(' ', '-')
-    plc = ptitle.downcase.gsub('[/:]', '')
-    @prompt.ask('Filename slug (without date/seq# or filetype): ', default: plc)
+    @plc = ptitle.downcase.gsub('[/:]', '')
+    @prompt.ask('Filename slug (without date/seq# or filetype): ', value: @plc)
   end
 
   def make_output_file
