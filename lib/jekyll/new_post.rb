@@ -98,17 +98,17 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   end
 
   def prepare_output_file # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity
-    collections_dir = @config['collections_dir'] || '.'
+    collections_dir = (@config['collections_dir'] || '.').strip
     collections = @config['collections'] || [{ 'label' => 'posts' }]
     if collections.length < 2
       collection_name = 'posts'
     else
-      labels = collections.map { |c| c['label'] }
-      collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels)
+      labels = collections.map { |c| c['label'].strip }
+      collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels).strip
     end
     if collection_name == 'posts'
       @prefix = "#{collections_dir}/_drafts"
-      @highest = @prompt.ask('Publication date', default: Date.today.to_s, date: true)
+      @highest = @prompt.ask('Publication date', default: Date.today.to_s, date: true).strip
     else
       @prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
@@ -116,8 +116,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
       @highest = choose_order(collection)
     end
     puts "This new post will be placed in the '#{@prefix}' directory"
-    @title = reprompt('Title', 30, 60, '')
-    @plc = read_title
+    @title = reprompt('Title', 30, 60, '').strip
+    @plc = read_title(@title)
   end
 
   # @param name - name of front matter variable
@@ -130,12 +130,13 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     numbers = '0123456789' * count
     chars = max - min
     loop do
-      value = @prompt.ask("Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n", default: value)
+      msg = "Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n"
+      value = @prompt.ask(msg, default: value.strip).strip
       case value.length
       when proc { |n| n < min }
-        "Only #{value.length} characters were provided, but at least #{min} are required."
+        puts "Only #{value.length} characters were provided, but at least #{min} are required."
       when proc { |n| n > max }
-        "#{value.length} characters were provided, but the maximum allowable is #{max}."
+        puts "#{value.length} characters were provided, but the maximum allowable is #{max}."
       else
         return value
       end
@@ -182,7 +183,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     end
 
     today = Date.today
-    contents <<~END_CONTENTS
+    contents = <<~END_CONTENTS
       ---
       #{emit_array('css',               @css)}
       #{emit_array('categories',        @categories)}
@@ -215,10 +216,10 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   end
 
   # Convert title to lowercase, remove slashes and colons, convert spaces to hyphens
-  def read_title
-    ptitle = @title.strip.gsub(' ', '-')
+  def read_title(title)
+    ptitle = title.strip.gsub(' ', '-')
     @plc = ptitle.downcase.gsub('[/:]', '')
-    @prompt.ask('Filename slug (without date/seq# or filetype): ', value: @plc)
+    @prompt.ask('Filename slug (without date/seq# or filetype): ', value: @plc).strip
   end
 
   def make_output_file
@@ -243,7 +244,7 @@ if __FILE__ == $PROGRAM_NAME
     abort 'Error: The _site/ directory does not exist.' unless site_root.exist?
     Dir.chdir site_root
 
-    new_post.reprompt('Test', 10, 20, 'Blah')
+    new_post.reprompt('Test', 10, 20, 'Blah').strip
   rescue SystemExit, Interrupt
     puts "\nTerminated".cyan
   rescue StandardError => e
