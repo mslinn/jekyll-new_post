@@ -108,7 +108,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     end
     if collection_name == 'posts'
       @prefix = "#{collections_dir}/_drafts"
-      @highest = @prompt.ask('Publication date', default: Date.today.to_s, date: true).strip
+      @highest = @pdate = @prompt.ask('Publication date', default: Date.today.to_s, date: true).strip
     else
       @prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
@@ -216,6 +216,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   end
 
   # Convert title to lowercase, remove slashes and colons, convert spaces to hyphens
+  # @return filename slug [String]
   def read_title(title)
     ptitle = title.strip.gsub(' ', '-')
     @plc = ptitle.downcase.gsub('[/:]', '')
