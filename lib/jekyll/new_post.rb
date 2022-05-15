@@ -89,11 +89,11 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   def prepare_output_contents
     @desc = reprompt('Description', 60, 150, @title)
-    @css = @prompt.ask('Post CSS (comma delimited): ')
-    @categories = @prompt.ask('Post Categories (comma delimited): ')
-    @tags = @prompt.ask('Post Tags (comma delimited): ')
-    # @keyw = @prompt.ask('Post Keywords (comma delimited): ')
-    @img = @prompt.ask('Banner image (.png & .webp): ')
+    @css = @prompt.ask('Post CSS (comma delimited):') || ''
+    @categories = @prompt.ask('Post Categories (comma delimited):') || ''
+    @tags = @prompt.ask('Post Tags (comma delimited):') || ''
+    # @keyw = @prompt.ask('Post Keywords (comma delimited):') || ''
+    @img = @prompt.ask('Banner image (.png & .webp):') || ''
     @clipboard = @prompt.yes?('Enable code example clipboard icon?')
   end
 
@@ -158,9 +158,9 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
       puts val.red
       case val.length
       when proc { |n| n < min }
-        "Only #{val.length} characters provided, need at least #{min}"
+        puts "Only #{val.length} characters provided, need at least #{min}"
       when proc { |n| n > max }
-        "#{val.length} characters provided, maximum allowable is #{max}"
+        puts "#{val.length} characters provided, maximum allowable is #{max}"
       else
         ''
       end
