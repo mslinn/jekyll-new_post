@@ -88,7 +88,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   end
 
   def prepare_output_contents
-    @desc = reprompt('Description', 60, 150, title)
+    @desc = reprompt('Description', 60, 150, @title)
     @css = @prompt.ask('Post CSS (comma delimited): ')
     @categories = @prompt.ask('Post Categories (comma delimited): ')
     @tags = @prompt.ask('Post Tags (comma delimited): ')
@@ -174,23 +174,26 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   end
 
   def output_contents # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    @javascript_end |= ''
+    @javascript_inline |= ''
     if @clipboard
-      javascript_end = '/assets/js/clipboard.min.js'
-      javascript_inline = "new ClipboardJS('.copyBtn');"
+      @javascript_end = '/assets/js/clipboard.min.js'
+      @javascript_inline = "new ClipboardJS('.copyBtn');"
     end
 
+    today = Date.today
     contents <<~END_CONTENTS
       ---
-      #{emit_array('css',               css)}
-      #{emit_array('categories',        categories)}
-      #{emit_scalar('date',             Date.today)}
-      #{emit_scalar('description',      desc)}
-      #{emit_scalar('image',            img)}
-      #{emit_scalar('javascript',       javascript)}
-      #{emit_scalar('javascriptEnd',    javascript_end)}
-      #{emit_scalar('javascriptInline', javascript_inline)}
-      #{emit_scalar('last_modified_at', Date.today)}
-      #{emit_scalar('layout',           blog)}
+      #{emit_array('css',               @css)}
+      #{emit_array('categories',        @categories)}
+      #{emit_scalar('date',             today)}
+      #{emit_scalar('description',      @desc)}
+      #{emit_scalar('image',            @img)}
+      #{emit_scalar('javascript',       @javascript)}
+      #{emit_scalar('javascriptEnd',    @javascript_end)}
+      #{emit_scalar('javascriptInline', @javascript_inline)}
+      #{emit_scalar('last_modified_at', today)}
+      #{emit_scalar('layout',           @blog)}
     END_CONTENTS
 
     # TODO: handle all collections like this
@@ -202,13 +205,13 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
     contents += <<~END_CONTENTS
       #{emit_array('#selectable', false)}
-      #{emit_array('tags',        tags)}
-      #{emit_scalar('title',      title)}
+      #{emit_array('tags',        @tags)}
+      #{emit_scalar('title',      @title)}
       ---
     END_CONTENTS
 
-    File.write(filename, contents)
-    puts "Created '#{filename}'"
+    File.write(@filename, contents)
+    puts "Created '#{@filename}'"
   end
 
   # Convert title to lowercase, remove slashes and colons, convert spaces to hyphens
@@ -221,7 +224,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   def make_output_file
     # Location to create the new file as year-month-day-title.md
     filename = "#{@prefix}/#{@pdate}-#{@plc}.html"
-    File.mkdirs @prefix
+    FileUtils.mkdir_p @prefix
     FileUtils.touch filename # Create the new empty post
     puts filename
   end

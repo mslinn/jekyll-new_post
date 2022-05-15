@@ -11,7 +11,9 @@ bundle update
 
 # bundle exec jekyll clean # Ensure all hooks get called
 
-if [ "$1" == -r ]; then
+if [ "$1" == -a ]; then
+  bundle exec ../exe/jekyll new_post
+elif [ "$1" == -r ]; then
   bundle exec ../exe/jekyll new_post
 else
   bundle exec rdebug-ide \

@@ -1,7 +1,17 @@
 #!/bin/bash
 
+# shellcheck disable=SC2086
+
+# -a run new_post
+# -r run serve
+
 # Assumes that the target Jekyll website contains a script called _bin/debug.
 # See https://www.mslinn.com/blog/2022/02/21/jekyll-debugging.html
+
+if [ "$1" == -r ]; then
+  shift
+  RUN=-a
+fi
 
 if [ -z "$1" ]; then
   echo "Error: Please provide the directory name of the Jekyll website where the plugin is to be tested from."
@@ -20,6 +30,9 @@ cd "${GIT_ROOT}"
 
 set -e
 
+rake install
+
 cd "$1" > /dev/null || exit 1
 shift
-_bin/debug "$*"
+echo "Running from $( pwd )"
+_bin/debug $RUN new_post "$@"
