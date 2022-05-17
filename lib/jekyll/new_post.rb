@@ -55,7 +55,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   private
 
   def choose_order(collection)
-    collection.docs.map(&:data.order).max + 100
+    collection.docs.map { |x| x.data['order'] }.max + 100
   end
 
   def check_length(min, max, string)
