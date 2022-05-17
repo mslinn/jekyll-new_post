@@ -113,7 +113,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
       @prefix = "#{collections_dir}/_drafts"
       @highest = @pdate = @prompt.ask('Publication date', default: Date.today.to_s, date: true).strip
     else
-      @prefix = "#{collections_dir}/#{collection_name}"
+      @prefix = "#{collections_dir}/_#{collection_name}"
       @categories = []
       collection = site.collections.find { |x| x.first == collection_name }[1]
       @pdate = @highest = choose_order(collection)
