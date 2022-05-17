@@ -30,8 +30,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
         new_post.make_post
       rescue SystemExit, Interrupt
         puts "\nTerminated".cyan
-      # rescue StandardError => e
-        # puts e.message.red
+      rescue StandardError => e
+        puts e.message.red
       end
     end
   end
@@ -52,7 +52,9 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   private
 
   def choose_order(collection)
-
+    puts collection.class.name
+    puts collection
+    1234
   end
 
   def check_length(min, max, string)
@@ -103,8 +105,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     if collections.length < 2
       collection_name = 'posts'
     else
-      labels = collections.map { |c| c.first }
-      collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels).strip
+      labels = collections.map(&:first)
+      collection_name = @prompt.select('Which collection should the new post be part of? ', labels).strip
     end
     if collection_name == 'posts'
       @prefix = "#{collections_dir}/_drafts"
@@ -112,8 +114,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     else
       @prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
-      collection = collections.find { |x| x['label'] == collection_name }
-      @highest = choose_order(collection)
+      collection = collections.find { |x| x.first == collection_name }
+      @pdate = @highest = choose_order(collection)
     end
     puts "This new post will be placed in the '#{@prefix}' directory"
     @title = reprompt('Title', 30, 60, '').strip
@@ -219,8 +221,9 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   # @return filename slug [String]
   def read_title(title)
     ptitle = title.strip.gsub(' ', '-')
-    @plc = ptitle.downcase.gsub('[/:]', '')
-    @prompt.ask('Filename slug (without date/seq# or filetype): ', value: @plc).strip
+    @plc = ptitle.downcase.gsub(/[^0-9a-z_-]/i, '')
+    @prompt.ask('Filename slug (without date/seq# or filetype): ', value: @plc)
+           .gsub(/[^0-9A-Za-z_-]/i, '')
   end
 
   def make_output_file
