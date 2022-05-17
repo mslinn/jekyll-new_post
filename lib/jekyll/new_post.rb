@@ -30,8 +30,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
         new_post.make_post
       rescue SystemExit, Interrupt
         puts "\nTerminated".cyan
-      rescue StandardError => e
-        puts e.message.red
+      # rescue StandardError => e
+        # puts e.message.red
       end
     end
   end
@@ -103,7 +103,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     if collections.length < 2
       collection_name = 'posts'
     else
-      labels = collections.map { |c| c['label'].strip }
+      labels = collections.map { |c| c.first }
       collection_name = @prompt.multi_select('Which collection should the new post be part of? ', labels).strip
     end
     if collection_name == 'posts'
@@ -130,7 +130,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     numbers = '0123456789' * count
     chars = max - min
     loop do
-      msg = "Post #{name} (30-60 characters):\n#{spaces}#{numbers[1..chars]}\n"
+      msg = " Post #{name} (30-60 characters):\n #{spaces}#{numbers[1..chars]}\n"
       value = @prompt.ask(msg, default: value.strip).strip
       case value.length
       when proc { |n| n < min }
