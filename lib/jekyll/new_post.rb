@@ -22,12 +22,15 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   class << self
     # @param prog [Mercenary::Program]
-    def init_with_program(prog)
+    def init_with_program(prog) # rubocop:disable Metrics/MethodLength
       prog.command(:new_post) do |_c|
         project_root = Pathname.new(__dir__).parent.to_s
         puts "Executing from #{project_root}".cyan
-        new_post = NewPost.new
-        new_post.make_post
+        Jekyll::Hooks.register(:site, :post_read) do |site|
+          @site = site
+          new_post = NewPost.new
+          new_post.make_post(site)
+        end
       rescue SystemExit, Interrupt
         puts "\nTerminated".cyan
       rescue StandardError => e
@@ -37,8 +40,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   end
 
   # Make a new post in one of the collections
-  def make_post
-    prepare_output_file
+  def make_post(site)
+    prepare_output_file(site)
     make_output_file
 
     prepare_output_contents
@@ -52,9 +55,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   private
 
   def choose_order(collection)
-    puts collection.class.name
-    puts collection
-    1234
+    collection.docs.max { |doc| doc.data.order } + 100
   end
 
   def check_length(min, max, string)
@@ -99,7 +100,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     @clipboard = @prompt.yes?('Enable code example clipboard icon?')
   end
 
-  def prepare_output_file # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity
+  def prepare_output_file(site) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity
     collections_dir = (@config['collections_dir'] || '.').strip
     collections = @config['collections'] || [{ 'label' => 'posts' }]
     if collections.length < 2
@@ -114,7 +115,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     else
       @prefix = "#{collections_dir}/#{collection_name}"
       @categories = []
-      collection = collections.find { |x| x.first == collection_name }
+      collection = site.collections.find { |x| x.first == collection_name }[1]
       @pdate = @highest = choose_order(collection)
     end
     puts "This new post will be placed in the '#{@prefix}' directory"
