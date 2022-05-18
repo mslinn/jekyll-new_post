@@ -235,24 +235,3 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     puts filename
   end
 end
-
-# Invoke this code this way:
-# $ cd demo
-# $ ruby ../lib/jekyll/new_post.rb
-if __FILE__ == $PROGRAM_NAME
-  begin
-    project_root = Pathname.new(__dir__).parent.to_s
-    puts "Executing from #{project_root}".cyan
-    new_post = NewPost.new
-
-    site_root = Pathname.new "#{project_root}/_site"
-    abort 'Error: The _site/ directory does not exist.' unless site_root.exist?
-    Dir.chdir site_root
-
-    new_post.reprompt('Test', 10, 20, 'Blah').strip
-  rescue SystemExit, Interrupt
-    puts "\nTerminated".cyan
-  rescue StandardError => e
-    puts e.message.red
-  end
-end
