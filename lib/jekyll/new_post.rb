@@ -38,7 +38,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
           @reload_reactor = nil
 
           config = configuration_from_options(opts)
-          process_with_graceful_fail(cmd, config, Build)
+          process_with_graceful_fail(cmd, config, Jekyll::Commands::Build)
         end
         process(nil)
         puts 'All done'
