@@ -22,19 +22,49 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   class << self
     # @param prog [Mercenary::Program]
-    def init_with_program(prog) # rubocop:disable Metrics/MethodLength
-      prog.command(:new_post) do |_c|
+    def init_with_program(prog) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      prog.command(:new_post) do |cmd|
+        cmd.description 'Make a new post in a collection'
+        cmd.syntax 'new_post [options]'
+        cmd.alias :newp
+        cmd.alias :n
+
+        add_build_options(cmd)
+        cmd.action do |_, opts|
+          # Set the reactor to nil so any old reactor will be GCed.
+          # We can't unregister a hook so while running tests we don't want to
+          # inadvertently keep using a reactor created by a previous test.
+          @reload_reactor = nil
+
+          config = configuration_from_options(opts)
+          process_with_graceful_fail(cmd, config, Build)
+        end
+
         project_root = Pathname.new(__dir__).parent.to_s
         puts "Executing from #{project_root}".cyan
-        Jekyll::Hooks.register(:site, :post_read) do |site|
-          @site = site
-          new_post = NewPost.new
-          new_post.make_post(site)
-        end
+        hooks
       rescue SystemExit, Interrupt
         puts "\nTerminated".cyan
       rescue StandardError => e
         puts e.message.red
+      end
+    end
+
+    def process(_opts) # rubocop:disable Metrics/MethodLength
+      Jekyll::Hooks.register(:site, :after_init) do |_site|
+        puts 'Hook site after_init triggered'.cyan
+      end
+      Jekyll::Hooks.register(:site, :after_reset) do |_site|
+        puts 'Hook site after_reset triggered'.cyan
+      end
+      Jekyll::Hooks.register(:site, :post_read) do |site|
+        puts 'Hook site post_read triggered'.cyan
+        @site = site
+        new_post = NewPost.new
+        new_post.make_post(site)
+      end
+      Jekyll::Hooks.register(:site, :pre_render) do |_site|
+        puts 'Hook site pre_render triggered'.cyan
       end
     end
   end

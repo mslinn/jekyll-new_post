@@ -34,5 +34,6 @@ rake install
 
 cd "$1" > /dev/null || exit 1
 shift
+# cd $msp; _bin/debug new_post -a
 echo "Running from $( pwd )"
 _bin/debug $RUN new_post "$@"
