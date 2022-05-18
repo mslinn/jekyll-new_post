@@ -22,15 +22,16 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
 
   class << self
     # @param prog [Mercenary::Program]
-    def init_with_program(prog) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def init_with_program(prog) # rubocop:disable Metrics/MethodLength
       prog.command(:new_post) do |cmd|
         cmd.description 'Make a new post in a collection'
         cmd.syntax 'new_post [options]'
-        cmd.alias :newp
+        cmd.alias :new_post
         cmd.alias :n
 
         add_build_options(cmd)
-        cmd.action do |_, opts|
+        cmd.action do |_, opts| # Never gets called
+          puts "cmd.action: opts = #{opts}"
           # Set the reactor to nil so any old reactor will be GCed.
           # We can't unregister a hook so while running tests we don't want to
           # inadvertently keep using a reactor created by a previous test.
@@ -39,10 +40,8 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
           config = configuration_from_options(opts)
           process_with_graceful_fail(cmd, config, Build)
         end
-
-        project_root = Pathname.new(__dir__).parent.to_s
-        puts "Executing from #{project_root}".cyan
-        hooks
+        process(nil)
+        puts 'All done'
       rescue SystemExit, Interrupt
         puts "\nTerminated".cyan
       rescue StandardError => e
