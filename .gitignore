@@ -11,3 +11,4 @@ Gemfile.lock
 demo/_site/
 demo/.jekyll-cache/
 demo/.jekyll-metadata
+.jekyll-cache
