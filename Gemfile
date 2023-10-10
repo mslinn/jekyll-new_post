@@ -8,7 +8,7 @@ gemspec
 gem 'jekyll'
 
 group :test, :development do
-  gem 'debug', require: false
+  gem 'debug', '>= 1.0.0', require: false
   gem 'rake', require: false
   gem 'rspec', require: false
   gem 'rubocop', require: false
