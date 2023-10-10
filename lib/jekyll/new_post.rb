@@ -102,7 +102,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
     if File.which 'code'
       run 'code .'
     elsif File.which 'notepad'
-      run "notepad #{filename}"  # Invokes mslinn's notepad++ script
+      run "notepad #{filename}" # Invokes mslinn's notepad++ script
     elsif File.which 'gedit'
       run "gedit #{filename}"
     else
@@ -197,7 +197,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
         ''
       end
     end
-    value = @prompt.ask(msg, value: value) do |q|
+    value = @prompt.ask(msg, value:) do |q|
       q.required true
       q.validate(/\A.{#{min},#{max}}\Z/, error_msg.call('%{value}'))
       # q.validate(/\A.{#{min},#{max}}\Z/)
@@ -250,7 +250,7 @@ class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
   # Convert title to lowercase, remove slashes and colons, convert spaces to hyphens
   # @return filename slug [String]
   def read_title(title)
-    ptitle = title.strip.gsub(' ', '-')
+    ptitle = title.strip.tr(' ', '-')
     @plc = ptitle.downcase.gsub(/[^0-9a-z_-]/i, '')
     @prompt.ask('Filename slug (without date/seq# or filetype): ', value: @plc)
            .gsub(/[^0-9A-Za-z_-]/i, '')

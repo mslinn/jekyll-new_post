@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative 'lib/jekyll/new_post/version'
 
 Gem::Specification.new do |spec|

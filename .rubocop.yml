@@ -1,12 +1,39 @@
+require:
+  #  - rubocop-jekyll
+  - rubocop-md
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rspec
+
 AllCops:
   Exclude:
       - vendor/**/*
       - Gemfile*
+      - exe/**/*
+      - jekyll/**/*
+      - vendor/**/*
   NewCops: enable
   TargetRubyVersion: 3.1
 
+Gemspec/RequireMFA:
+  Enabled: false
+
+Layout/FirstHashElementIndentation:
+  Enabled: false
+
+Layout/HashAlignment:
+  EnforcedColonStyle: table
+  EnforcedHashRocketStyle: table
+
+Layout/LeadingCommentSpace:
+  Exclude:
+    - _bin/**/*
+
 Layout/LineLength:
   Max: 150
+
+Layout/MultilineMethodCallIndentation:
+  Enabled: false
 
 Metrics/AbcSize:
   Max: 20
@@ -27,8 +54,24 @@ Metrics/MethodLength:
   Exclude:
     - "test/**/*"
 
+Naming/FileName:
+  Exclude:
+    - _bin/**/*
+
 Style/CommandLiteral:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
+
+Style/RegexpLiteral:
   Enabled: false
 
 Style/StringLiterals:
   EnforcedStyle: single_quotes
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
