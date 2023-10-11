@@ -7,13 +7,15 @@
     {
       "args": ["new_post"],
       "cwd": "${workspaceFolder}/demo",
+      "debugPort": "0",
       "name": "Debug new_post sub-command",
       "request": "launch",
       "script": "exe/jekyll",
       "type": "rdbg",
     },
     {
-      "name": "Attach rdebug-ide",
+      "debugPort": "0",
+      "name": "Attach rdbg",
       "request": "attach",
       "type": "rdbg",
     },

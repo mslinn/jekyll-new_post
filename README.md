@@ -1,4 +1,4 @@
-# Jekyll::NewPost
+# `Jekyll::NewPost` [![Gem Version](https://badge.fury.io/rb/jekyll-new_post.svg)](https://badge.fury.io/rb/jekyll-new_post)
 
 This project defines a Jekyll subcommand called `new_post`.
 This Jekyll subcommand must be installed into a Jekyll project before it can be used.
@@ -25,13 +25,15 @@ $ bundle
 
 ## Usage
 
-The `demo` subdirectory is a small Jekyll site, pre-configured with the `new_post` Jekyll subcommand.
+The `demo` subdirectory is a small Jekyll site,
+pre-configured with the `new_post` Jekyll subcommand.
 
 ```shell
 $ cd demo
 
 $ jekyll new_post
 ```
+
 
 ## Development
 
