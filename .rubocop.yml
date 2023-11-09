@@ -13,9 +13,11 @@ AllCops:
       - jekyll/**/*
       - vendor/**/*
   NewCops: enable
-  TargetRubyVersion: 3.1
 
 Gemspec/RequireMFA:
+  Enabled: false
+
+Gemspec/RequiredRubyVersion:
   Enabled: false
 
 Layout/FirstHashElementIndentation:

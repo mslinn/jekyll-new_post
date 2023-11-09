@@ -6,6 +6,16 @@
 # Assumes that the target Jekyll website contains a script called _bin/debug.
 # See https://www.mslinn.com/blog/2022/02/21/jekyll-debugging.html
 
+# Change to parent directory of this script
+SOURCE=${BASH_SOURCE[0]}
+while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+  SOURCE=$(readlink "$SOURCE")
+  [[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+cd "$DIR/.."
+
 if [ "$1" == -r ]; then
   shift
   RUN=-a
@@ -32,6 +42,5 @@ rake install
 
 cd "$1" > /dev/null || exit 1
 shift
-# cd $msp; _bin/debug new_post -a
 echo "Running from $( pwd )"
 _bin/debug $RUN new_post "$@"
