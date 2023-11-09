@@ -5,19 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "args": ["new_post"],
+      "args": ["--nonstop", "--port 0", "--", "new_post"],
       "cwd": "${workspaceRoot}/demo",
       "debugPort": "0",
       "name": "Debug new_post sub-command",
       "request": "launch",
-      "script": "${workspaceRoot}/exe/jekyll ${workspaceRoot}/lib/jekyll/new_post.rb",
+      "script": "${workspaceRoot}/exe/jekyll",
       "type": "rdbg",
-    },
-    {
-      "name": "Run new_post sub-command with ruby_lsp",
-      "program": "${workspaceRoot}/exe/jekyll ${workspaceRoot}/lib/jekyll/new_post.rb",
-      "request": "launch",
-      "type": "ruby_lsp"
     },
     {
       "debugPort": "0",

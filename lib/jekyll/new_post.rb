@@ -9,6 +9,8 @@ require 'ptools' # gem install ptools
 require 'tty-prompt'
 require 'yaml'
 
+Signal.trap('INT') { exit }
+
 # This Ruby script makes a new HTML Jekyll draft blog post and opens it for editing.
 # See https://www.mslinn.com/blog/2022/03/28/jekyll-plugin-template-collection.html#cmds
 class NewPost < Jekyll::Command # rubocop:disable Metrics/ClassLength
