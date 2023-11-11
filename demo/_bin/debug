@@ -1,25 +1,17 @@
 #!/bin/bash
 
-# shellcheck disable=SC2086
-
-
 GIT_ROOT="$( git rev-parse --show-toplevel )"
 cd "${GIT_ROOT}/demo" || exit
 
-bundle install
+bundle 
 bundle update
 
 # bundle exec jekyll clean # Ensure all hooks get called
 
 if [ "$1" == -a ]; then
-  bundle exec ../exe/jekyll new_post
+  bundle exec ../binstub/jekyll new_post
 elif [ "$1" == -r ]; then
-  bundle exec ../exe/jekyll new_post
+  bundle exec ../binstub/jekyll new_post
 else
-  bundle exec rdebug-ide \
-    --host 0.0.0.0 \
-    --port 1234 \
-    --dispatcher-port 26162 \
-    -- \
-      ../exe/jekyll new_post
+  bundle exec rdbg -O --port=0 -- ../binstub/jekyll new_post
 fi

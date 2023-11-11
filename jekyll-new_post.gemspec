@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.authors = ['Mike Slinn']
   spec.bindir = 'exe'
   spec.email = ['mslinn@mslinn.com']
-  spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
+  spec.executables = spec.files.grep(%r{\Abinstub/}) { |f| File.basename(f) }
   spec.files = Dir['.rubocop.yml', 'LICENSE.*', 'Rakefile', '{lib,spec}/**/*', '*.gemspec', '*.md']
   spec.homepage = 'https://github.com/mslinn/jekyll-new_post'
   spec.license = 'MIT'

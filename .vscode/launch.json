@@ -5,13 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "args": ["--nonstop", "--port 0", "--", "new_post"],
+      "args": ["new_post"],
       "cwd": "${workspaceRoot}/demo",
       "debugPort": "0",
       "name": "Debug new_post sub-command",
       "request": "launch",
-      "script": "${workspaceRoot}/exe/jekyll",
+      "script": "${workspaceRoot}/binstub/jekyll",
       "type": "rdbg",
+      "useBundler": true,
     },
     {
       "debugPort": "0",
@@ -19,5 +20,28 @@
       "request": "attach",
       "type": "rdbg",
     },
+    {
+      "args": [
+        "-I",
+        "${workspaceRoot}"
+      ],
+      "debugPort": "0",
+      "name": "RSpec - all",
+      "request": "launch",
+      "script": "${workspaceRoot}/binstub/rspec",
+      "type": "rdbg",
+    },
+    {
+      "args": [
+        "-I",
+        "${workspaceRoot}",
+        "${file}"
+      ],
+      "debugPort": "0",
+      "name": "RSpec - active spec file only",
+      "request": "launch",
+      "script": "${workspaceRoot}/binstub/rspec",
+      "type": "rdbg",
+    }
   ]
 }

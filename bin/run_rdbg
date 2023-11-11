@@ -10,4 +10,4 @@ done
 DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 cd "$DIR/../demo" || exit
 
-rdbg --nonstop -c bundle exec /mnt/f/work/jekyll/my_plugins/jekyll-new_post/exe/jekyll -- new_post
+rdbg --nonstop -c bundle exec /mnt/f/work/jekyll/my_plugins/jekyll-new_post/binstub/jekyll -- new_post

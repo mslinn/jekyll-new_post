@@ -9,7 +9,7 @@ AllCops:
   Exclude:
       - vendor/**/*
       - Gemfile*
-      - exe/**/*
+      - binstub/**/*
       - jekyll/**/*
       - vendor/**/*
   NewCops: enable
